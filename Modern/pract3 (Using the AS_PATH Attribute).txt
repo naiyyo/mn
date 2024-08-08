@@ -1,0 +1,149 @@
+R1 (hostname SanJose)
+
+conf term
+hostname SanJose
+interface Loopback0
+ip address 10.1.1.1 255.255.255.0
+interface Serial4/0
+ip address 192.168.1.5 255.255.255.252
+clock rate 128000
+no shutdown
+
+
+
+R2 (hostname ISP)
+
+conf term
+hostname ISP
+interface Loopback0
+ip address 10.2.2.1 255.255.255.0
+interface Serial4/0
+ip address 192.168.1.6 255.255.255.252
+no shutdown
+
+
+
+R3 (hostname CustRtr)
+
+conf term
+hostname CustRtr
+interface Loopback0
+ip address 10.3.3.1 255.255.255.0
+inerface Serial4/1
+ip address 172.24.1.18 255.255.255.252
+no shutdown
+
+
+R1:
+
+exit
+router bgp 100
+neighbor 192.168.1.6 remote-as 300
+network 10.1.1.0 mask 255.255.255.0
+
+
+R2:
+
+exit
+router bgp 300
+neighbor 192.168.1.5 remote-as 100
+neighbor 172.24.1.18 remote-as 65000
+network 10.2.2.0 mask 255.255.255.0
+
+
+R3:
+
+exit
+router bgp 65000
+neighbor 172.24.1.17 remote-as 300
+network 10.3.3.0 mask 255.255.255.0
+
+R2:
+
+exit
+exit
+show ip bgp neighbors
+
+
+R1:
+Exit
+show ip route
+
+
+
+SanJose#ping
+Protocol [ip]: enter
+Target IP address: 10.3.3.1
+Repeat count [5]: enter
+Datagram size [100]: enter
+Timeout in seconds [2]: enter 
+Extended commands [n]: y
+Source address or interface: 10.1.1.1
+Type of service [0]: enter 
+Set DF bit in IP header? [no]: enter
+Validate reply data? [no]: Data pattern [0xABCD]
+% Please answer 'yes' or 'no'.
+Validate reply data? [no]: enter
+Data pattern [0xABCD]: enter
+Loose, Strict, Record, Timestamp, Verbose[none]: enter
+Sweep range of sizes [n]: enter
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.3.3.1, timeout is 2 seconds:
+Packet sent with a source address of 10.1.1.1
+.....
+Success rate is 0 percent (0/5)
+
+SanJose# ping 10.3.3.1 source Lo0
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.3.3.1, timeout is 2 seconds:
+Packet sent with a source address of 10.1.1.1
+.....
+Success rate is 0 percent (0/5)
+
+show ip bgp
+
+
+R2:
+
+conf term
+router bgp 300
+neighbor 192.168.1.5 remove-private-as
+
+
+
+R1:
+ping 10.3.3.1 source lo0
+
+show ip bgp
+
+
+R2:
+
+exit
+ip as-path access-list 1 deny ^100$
+ip as-path access-list 1 permit .*
+
+
+router bgp 300
+neighbor 172.24.1.18 filter-list 1 out
+
+exit
+exit
+show ip route
+
+show ip bgp regexp ^100$
+
+tclsh
+foreach address {
+10.1.1.1
+10.2.2.1
+10.3.3.1
+192.168.1.5
+192.168.1.6
+172.24.1.17
+172.24.1.18
+} {
+ping $address }
+
+
+

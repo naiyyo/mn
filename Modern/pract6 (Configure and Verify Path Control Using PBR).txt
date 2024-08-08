@@ -1,0 +1,246 @@
+R1:
+
+conf term 
+hostname R1
+! 
+interface Lo1
+description R1 LAN
+ip address 192.168.1.1 255.255.255.0
+! 
+interface Serial 4/0
+description R1 --> R2
+ip address 172.16.12.1 255.255.255.248
+clock rate 128000
+bandwidth 128
+no shutdown
+! 
+interface Serial 4/1
+description R1 --> R3
+ip address 172.16.13.1 255.255.255.248
+bandwidth 64
+no shutdown
+!
+end
+
+
+
+
+R2:
+
+conf term
+hostname R2
+! 
+interface Lo2
+description R2 LAN
+ip address 192.168.2.1 255.255.255.0
+! 
+interface Serial 4/0
+description R2 --> R1
+ip address 172.16.12.2 255.255.255.248
+bandwidth 128
+no shutdown
+interface Serial 4/1
+description R2 --> R3
+ip address 172.16.23.2 255.255.255.248
+clock rate 128000
+bandwidth 128
+no shutdown
+!
+end
+
+
+
+
+
+
+R3:
+conf term
+hostname R3
+! 
+interface Lo3
+description R3 LAN
+ip address 192.168.3.1 255.255.255.0
+!
+interface Serial 4/0
+description R3 --> R1
+ip address 172.16.13.3 255.255.255.248
+clock rate 64000
+bandwidth 64
+no shutdown
+! 
+interface Serial 4/1
+description R3 --> R2
+ip address 172.16.23.3 255.255.255.248
+bandwidth 128
+no shutdown
+! 
+interface Serial 4/2
+description R3 --> R4
+ip address 172.16.34.3 255.255.255.248
+clock rate 64000
+bandwidth 64
+no shutdown
+!
+end
+
+
+
+
+R4:
+
+
+conf term
+hostname R4
+! 
+interface Lo4
+description R4 LAN A
+ip address 192.168.4.1 255.255.255.128
+! 
+interface Lo5
+description R4 LAN B
+ip address 192.168.4.129 255.255.255.128
+! 
+interface Serial 4/0
+description R4 --> R3
+ip address 172.16.34.4 255.255.255.248
+bandwidth 64
+no shutdown
+!
+end
+
+
+R3:
+show ip interface brief | include up
+show protocols
+show interfaces description | include up
+
+
+R1:
+conf term
+router eigrp 1
+network 192.168.1.0
+network 172.16.12.0 0.0.0.7
+network 172.16.13.0 0.0.0.7
+no auto-summary
+
+
+R2:
+conf term
+router eigrp 1
+network 192.168.2.0
+network 172.16.12.0 0.0.0.7
+network 172.16.23.0 0.0.0.7
+no auto-summary
+
+R3:
+conf term
+router eigrp 1
+network 192.168.3.0
+network 172.16.13.0 0.0.0.7
+network 172.16.23.0 0.0.0.7
+network 172.16.34.0 0.0.0.7
+no auto-summary
+
+
+R4:
+conf term
+router eigrp 1
+network 192.168.4.0
+network 172.16.34.0 0.0.0.7
+no auto-summary
+
+
+R1:
+exit
+exit
+show ip eigrp neighbors
+
+R2:
+exit
+exit
+show ip eigrp neighbors
+
+
+R3:
+exit
+exit
+show ip eigrp neighbors
+
+
+R4:
+exit 
+exit
+show ip eigrp neighbors
+
+
+R1:
+tclsh
+foreach address {
+172.16.12.1
+172.16.12.2
+172.16.13.1
+172.16.13.3
+172.16.23.2
+172.16.23.3
+172.16.34.3
+172.16.34.4
+192.168.1.1
+192.168.2.1
+192.168.3.1
+192.168.4.1
+192.168.4.129
+}
+
+exit
+show ip route | begin Gateway
+
+
+
+R4:
+traceroute 192.168.1.1 source 192.168.4.1
+traceroute 192.168.1.1 source 192.168.4.129
+
+
+R3:
+show ip route | begin Gateway
+show interfaces serial 4/0
+show interfaces serial 4/0 | include BW
+show interfaces serial 4/1 | include BW
+show ip eigrp topology 192.168.1.0
+
+
+conf term
+ip access-list standard PBR-ACL
+remark ACL matches R4 LAN B traffic
+permit 192.168.4.128 0.0.0.127
+exit
+
+route-map R3-to-R1 permit
+description RM to forward LAN B traffic to R1
+match ip address PBR-ACL
+set ip next-hop 172.16.13.1
+exit
+
+interface Serial 4/3
+ip policy route-map R3-to-R1
+end
+show route-map
+
+
+conf term
+access-list 1 permit 192.168.4.0 0.0.0.255
+exit
+
+debug ip policy ?
+debug ip policy 1
+
+
+R4:
+
+traceroute 192.168.1.1 source 192.168.4.1
+traceroute 192.168.1.1 source 192.168.4.129
+
+
+R3:
+show route-map
+

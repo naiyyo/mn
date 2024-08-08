@@ -1,0 +1,167 @@
+Pomerol :
+
+conf term
+version 12.2
+hostname Pomerol
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.3 255.255.255.255
+
+interface Serial4/0
+ip address 10.1.1.21 255.255.255.252
+tag-switching ip
+
+interface Serial4/2
+ip address 10.1.1.6 255.255.255.252
+tag-switching ip
+
+interface Serial4/4
+ip address 10.1.1.9 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+end
+
+Pulligny :
+
+conf term
+version 12.2
+hostname Pulligny
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.2 255.255.255.255
+
+interface Serial4/0
+ip address 10.1.1.2 255.255.255.252
+tag-switching ip
+
+interface Serial4/1
+ip address 10.1.1.10 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+end
+
+Pauillac:
+
+version 12.2
+hostname Pauillac
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.1 255.255.255.255
+
+interface Serial4/1
+ip address 10.1.1.13 255.255.255.252
+tag-switching ip
+
+interface Serial4/2
+ip address 10.1.1.17 255.255.255.252
+tag-switching ip
+
+interface Serial4/3
+ip address 10.1.1.1 255.255.255.252
+tag-switching ip
+
+interface Serial4/5
+ip address 10.1.1.5 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+Pescara :
+
+conf term
+version 12.2
+hostname Pescara
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.4 255.255.255.255
+
+interface Serial4/3
+ip address 10.1.1.14 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+end
+
+Pesaro :
+
+conf term
+version 12.2
+hostname Pesaro
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.6 255.255.255.255
+
+interface Serial4/4
+ip address 10.1.1.22 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+end
+
+Perugia :
+
+conf term
+version 12.2
+hostname Perugia
+ip subnet-zero
+ip cef
+
+interface Loopback0
+ip address 10.10.10.5 255.255.255.255
+
+interface Serial4/5
+ip address 10.1.1.18 255.255.255.252
+tag-switching ip
+
+router ospf 10
+log-adjacency-changes
+network 10.0.0.0 0.255.255.255 area 9
+
+ip classless
+
+end
+
+Pomerol :
+
+show ip route 10.10.10.4
+show mpls forwarding-table
+show mpls forwarding-table 10.10.10.4 32 detail
+show tag-switching tdp bindings 10.10.10.4 32
+
+

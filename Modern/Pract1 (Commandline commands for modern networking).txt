@@ -1,0 +1,68 @@
+A) cmd : Administrator
+
+ping www.google.com
+
+netstat
+
+arp -a
+
+arp -g
+
+nbtstat
+
+hostname
+
+ipconfig
+
+route
+
+pathping
+
+net diag
+
+getmac
+
+nslookup
+
+systeminfo
+
+
+
+(B) Wi-Fi Hacking Password:
+
+netsh wlan show profile
+
+netsh wlan export profile folder = c:\ key=clear
+
+
+
+(C) :  Cisco Practical
+
+2- switch
+3- pc
+
+console 1:
+
+en
+conf t
+int f0/1
+int f0/0
+no sh
+end
+
+sh ip int br
+
+
+console 2:
+
+conf t
+int f0/1
+int f1/0
+no sh
+end
+
+sh ip int br
+
+
+
+

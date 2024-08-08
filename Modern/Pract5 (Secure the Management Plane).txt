@@ -1,0 +1,145 @@
+R1 :
+
+hostname R1
+interface Loopback 0
+description R1 LAN
+ip address 192.168.1.1 255.255.255.0
+exit
+!
+interface Serial0/0/0
+description R1 --&gt; R2
+ip address 10.1.1.1 255.255.255.252
+clock rate 128000
+no shutdown
+exit
+!
+end
+
+R2
+hostname R2
+!
+interface Serial0/0/0
+description R2 --&gt; R1
+ip address 10.1.1.2 255.255.255.252
+no shutdown
+exit
+interface Serial0/0/1
+description R2 --&gt; R3
+ip address 10.2.2.1 255.255.255.252
+clock rate 128000
+no shutdown
+exit
+!
+end
+
+R3
+hostname R3
+!
+interface Loopback0
+description R3 LAN
+ip address 192.168.3.1 255.255.255.0
+exit
+interface Serial0/0/1
+description R3 --&gt; R2
+ip address 10.2.2.2 255.255.255.252
+no shutdown
+exit
+!
+end
+
+R1:
+
+conf term
+ip route 0.0.0.0 0.0.0.0 10.1.1.2
+
+R3 :
+conf trem
+ip route 0.0.0.0 0.0.0.0 10.2.2.1
+
+R2 :
+conf term
+ip route 192.168.1.0 255.255.255.0 10.1.1.1
+ip route 192.168.3.0 255.255.255.0 10.2.2.2
+
+
+R1: 
+
+tclsh
+foreach address {
+192.168.1.1
+10.1.1.1
+10.1.1.2
+10.2.2.1
+10.2.2.2
+192.168.3.1
+}
+exit
+
+conf term
+security passwords min-length 10
+enable secret class12345
+
+line console 0
+password ciscoconpass
+exec-timeout 5 0
+login
+logging synchronous
+exit
+
+line vty 0 4
+password ciscovtypass
+exec-timeout 5 0
+login
+exit
+
+line aux 0
+no exec
+end
+
+conf term
+service password-encryption
+banner motd $Unauthorized access strictly prohibited!$
+exit
+
+conf term
+username JR-ADMIN secret class12345
+username ADMIN secret class54321
+
+line console 0
+login local
+exit
+
+line vty 0 4
+login local
+end
+
+telnet 10.2.2.2
+
+conf term
+aaa new-model
+
+radius server RADIUS-1
+address ipv4 192.168.1.101
+key RADIUS-1-pa55w0rd
+exit
+
+radius server RADIUS-2
+address ipv4 192.168.1.102
+key RADIUS-2-pa55w0rd
+exit
+
+aaa group server radius RADIUS-GROUP
+server name RADIUS-1
+server name RADIUS-2
+exit
+
+aaa authentication login default group RADIUS-GROUP local
+
+aaa authentication login TELNET-LOGIN group RADIUS-GROUP local-case
+
+line vty 0 4
+login authentication TELNET-LOGIN
+exit
+
+telnet 10.2.2.2
+

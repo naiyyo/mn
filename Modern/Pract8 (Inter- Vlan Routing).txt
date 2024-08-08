@@ -1,0 +1,50 @@
+PC0:
+
+IP Address : 192.168.1.1
+Subnet Mask : 255.255.255.0
+Default Gateway : 192.168.1.100
+Static
+Link Local Address : FE80::204:9AFF:6625
+
+
+
+
+PC1:
+
+IP Address : 192.168.2.1
+Subnet Mask : 255.255.255.0
+Default Gateway : 192.168.2.100
+Static
+Link Local Address : FE80::2D0:97FF:FE06:1293
+
+
+
+
+PC2:
+
+IP Address : 192.168.1.2
+Subnet Mask : 255.255.255.0
+Static
+Link Local Address : FE80::206:2AFF:FE5C:4A19
+
+
+
+PC3:
+
+IP Address : 192.168.2.2
+Subnet Mask : 255.255.255.0
+Static
+Link Local Address : FE80::260:47FF:FEC1:5850
+
+
+CMD PC1 :
+
+ping 192.168.2.1
+
+
+
+CMD PC0 :
+
+ping 192.168.1.1
+ping 192.168.1.2
+ping 192.168.1.100
